@@ -17,13 +17,13 @@ class ReduxConfig {
 
     createStore(reducers) {
         if (!this.store) {
-            const persist = {
+            const config = {
                 key: 'Cache',
                 storage: AsyncStorage,
             }
 
             this.store = createStore(
-                persistCombineReducers(persist, reducers),
+                persistCombineReducers(config, reducers),
                 applyMiddleware(thunk, logger)
             )
 

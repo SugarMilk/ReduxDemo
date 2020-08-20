@@ -49,6 +49,22 @@ class ReduxConfig {
         })
     }
 
+    storeProxy(instance, name) {
+        const handler = (name) => {
+            return {
+                set: (target, prop, value) => {
+                    Reflect.set(target, prop, value)
+                    this.store.dispatch(Action(name, prop, value))
+                },
+                get: (target, prop) => {
+                    Reflect.get(target, prop)
+                    return this.store.getState()[name][prop]
+                }
+            }
+        }
+        return new Proxy(instance, handler(name))
+    }
+
 }
 
 export default new ReduxConfig()

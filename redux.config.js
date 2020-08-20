@@ -33,7 +33,7 @@ class ReduxConfig {
     }
 
     registerComponent(name, Component) {
-        const that = this
+        let that = this
         AppRegistry.registerComponent(name, () => {
             return class extends React.PureComponent {
                 render() {

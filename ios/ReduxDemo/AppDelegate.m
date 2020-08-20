@@ -30,6 +30,8 @@ static void InitializeFlipper(UIApplication *application) {
 #if DEBUG
   InitializeFlipper(application);
 #endif
+  
+  NSLog(@"sandbox path: \n%@/Documents/RCTAsyncLocalStorage_V1/manifest.json", NSHomeDirectory());
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge

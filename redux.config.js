@@ -1,9 +1,12 @@
 
 import React from 'react'
-import { AppRegistry } from 'react-native'
+import { AppRegistry, AsyncStorage } from 'react-native'
 
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
+
+import { persistStore, persistReducer } from 'redux-persist'
+import { PersistGate } from 'redux-persist/lib/integration/react'
 
 import thunk from 'redux-thunk'
 import logger from 'redux-logger'
@@ -14,10 +17,18 @@ class ReduxConfig {
   }
 
   createStore(reducers) {
-    this.store = this.store || createStore(
-      combineReducers(reducers),
+    const persistConfig = {
+      key: 'Cache',
+      storage: AsyncStorage,
+    }
+    const reducer = persistReducer(persistConfig, combineReducers(reducers))
+
+    this.store = createStore(
+      reducer,
       applyMiddleware(thunk, logger),
     )
+
+    this.persistor = persistStore(this.store)
 
     this.store.subscribe(() => {
       console.log('hj', this.store.getState());
@@ -31,7 +42,9 @@ class ReduxConfig {
         render() {
           return (
             <Provider store={that.store}>
-              <Component />
+              <PersistGate persistor={that.persistor}>
+                <Component />
+              </PersistGate>
             </Provider>
           )
         }

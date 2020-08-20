@@ -1,56 +1,53 @@
-
 import React from 'react'
 import { AppRegistry, AsyncStorage } from 'react-native'
 
-import { createStore, combineReducers, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 
-import { persistStore, persistReducer } from 'redux-persist'
+import { persistStore, persistCombineReducers } from 'redux-persist'
 import { PersistGate } from 'redux-persist/lib/integration/react'
 
 import thunk from 'redux-thunk'
 import logger from 'redux-logger'
 
 class ReduxConfig {
-  constructor() {
+    constructor() {
 
-  }
-
-  createStore(reducers) {
-    const persistConfig = {
-      key: 'Cache',
-      storage: AsyncStorage,
     }
-    const reducer = persistReducer(persistConfig, combineReducers(reducers))
 
-    this.store = createStore(
-      reducer,
-      applyMiddleware(thunk, logger),
-    )
+    createStore(reducers) {
+        if (!this.store) {
+            const persist = {
+                key: 'Cache',
+                storage: AsyncStorage,
+            }
 
-    this.persistor = persistStore(this.store)
+            this.store = createStore(
+                persistCombineReducers(persist, reducers),
+                applyMiddleware(thunk, logger)
+            )
 
-    this.store.subscribe(() => {
-      console.log('hj', this.store.getState());
-    })
-  }
-
-  registerComponent(name, Component) {
-    const that = this
-    AppRegistry.registerComponent(name, () => {
-      return class extends React.PureComponent {
-        render() {
-          return (
-            <Provider store={that.store}>
-              <PersistGate persistor={that.persistor}>
-                <Component />
-              </PersistGate>
-            </Provider>
-          )
+            this.persistor = persistStore(this.store)
         }
-      }
-    })
-  }
+        return this.store
+    }
+
+    registerComponent(name, Component) {
+        const that = this
+        AppRegistry.registerComponent(name, () => {
+            return class extends React.PureComponent {
+                render() {
+                    return (
+                        <Provider store={that.store}>
+                            <PersistGate persistor={that.persistor}>
+                                <Component/>
+                            </PersistGate>
+                        </Provider>
+                    )
+                }
+            }
+        })
+    }
 
 }
 

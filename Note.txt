@@ -1,0 +1,18 @@
+
+redux-persist:
+    https://github.com/rt2zz/redux-persist
+
+react-native之 redux-persist 数据存储:
+    https://blog.csdn.net/z93701081/article/details/89457099
+
+react native 中使用 redux-persist:
+    https://blog.csdn.net/weixin_45177667/article/details/104008312
+
+ReactNative redux-persist 缓存 redux 数据持久化到本地:
+    http://www.cctv3.net/archives/ReactNativeReduxPersist.html
+
+
+
+---------------------------------------------------------------
+
+Q: PersistGate 是什么？

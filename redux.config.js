@@ -73,11 +73,11 @@ class ReduxConfig {
 
         const handler = (name) => ({
             set: (target, prop, value) => {
-                this.store.dispatch(action(name, prop, value))
+                this.store && this.store.dispatch(action(name, prop, value))
                 Reflect.set(target, prop, value)
             },
             get: (target, prop) => {
-                let model = this.store.getState().model
+                let model = this.store && this.store.getState().model
                 let value = model && model[name] && model[name][prop]
                 return value || Reflect.get(target, prop)
             }

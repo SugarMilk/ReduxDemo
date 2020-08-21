@@ -10,6 +10,8 @@ import { PersistGate } from 'redux-persist/lib/integration/react'
 import thunk from 'redux-thunk'
 import logger from 'redux-logger'
 
+const SDK_MODEL_SET = 'sdk.model.set'
+
 class ReduxConfig {
     constructor() {
 
@@ -22,8 +24,22 @@ class ReduxConfig {
                 storage: AsyncStorage,
             }
 
+            const model = (state = {}, action) => {
+                const { type, name, prop, value } = action
+                switch (type) {
+                    case SDK_MODEL_SET:
+                        let props = {...state[name]}
+                        props[prop] = value
+                        return {
+                            ...state, [name]: {...props}
+                        }
+                    default:
+                        return state
+                }
+            }
+
             this.store = createStore(
-                persistCombineReducers(config, reducers),
+                persistCombineReducers(config, {...reducers, model}),
                 applyMiddleware(thunk, logger)
             )
 
@@ -50,18 +66,23 @@ class ReduxConfig {
     }
 
     storeProxy(instance, name) {
-        const handler = (name) => {
-            return {
-                set: (target, prop, value) => {
-                    Reflect.set(target, prop, value)
-                    this.store.dispatch(Action(name, prop, value))
-                },
-                get: (target, prop) => {
-                    Reflect.get(target, prop)
-                    return this.store.getState()[name][prop]
-                }
+        const action = (name, prop, value) => ({
+            type: SDK_MODEL_SET,
+            name, prop, value,
+        })
+
+        const handler = (name) => ({
+            set: (target, prop, value) => {
+                Reflect.set(target, prop, value)
+                this.store.dispatch(action(name, prop, value))
+            },
+            get: (target, prop) => {
+                Reflect.get(target, prop)
+                let model = this.store.getState().model
+                return model && model[name] && model[name][prop]
             }
-        }
+        })
+
         return new Proxy(instance, handler(name))
     }
 
